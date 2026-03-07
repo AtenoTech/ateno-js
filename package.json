@@ -1,0 +1,21 @@
+{
+  "name": "ateno",
+  "version": "1.0.0",
+  "description": "Official JavaScript SDK for the Ateno API",
+  "main": "dist/index.js",
+  "type": "commonjs",
+  "keywords": [
+    "ateno",
+    "sdk",
+    "api"
+  ],
+  "author": "Ateno",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AtenoTech/ateno-js.git"
+  },
+  "scripts": {
+    "build": "node build.js"
+  }
+}
