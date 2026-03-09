@@ -25,5 +25,8 @@
   "scripts": {
     "build": "node build.js",
     "prepublishOnly": "npm run build"
+  },
+  "bin": {
+    "ateno-js": "./bin/index.js"
   }
 }
