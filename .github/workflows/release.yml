@@ -20,23 +20,21 @@ jobs:
 
       - name: Update Homebrew Repo
         run: |
-          # 1. Setup Git
           git config --global user.name "Ateno Robot"
           git config --global user.email "robot@ateno.co"
           
-          # 2. Clone the Homebrew repo
+          # Clone the repo
           git clone https://x-access-token:${{ secrets.HOMEBREW_TAP_TOKEN }}@github.com/AtenoTech/ateno-homebrew.git hb-repo
           cd hb-repo
           
-          # 3. Ensure the Formula folder exists
-          mkdir -p Formula
+          # DEBUG: This will show us if the Formula folder actually exists in GitHub
+          ls -R
           
-          # 4. Update the file (using a slightly safer sed syntax)
-          # This replaces the URL and the SHA256 specifically in ateno-js.rb
+          # Update the file
+          # We use -i.bak to be safer on different systems
           sed -i "s|url \".*\"|url \"https://github.com/AtenoTech/ateno-js/archive/refs/tags/${{ github.ref_name }}.tar.gz\"|g" Formula/ateno-js.rb
           sed -i "s|sha256 \".*\"|sha256 \"${{ env.HASH }}\"|g" Formula/ateno-js.rb
           
-          # 5. Push changes
           git add Formula/ateno-js.rb
           git commit -m "Update ateno-js to ${{ github.ref_name }}"
           git push
