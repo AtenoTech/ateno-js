@@ -1,0 +1,30 @@
+name: Auto-Update Homebrew (JS)
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  update-brew:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Calculate SHA256
+        id: shasum
+        run: |
+          curl -L -o code.tar.gz https://github.com/AtenoTech/ateno-js/archive/refs/tags/${{ github.ref_name }}.tar.gz
+          echo "HASH=$(shasum -a 256 code.tar.gz | awk '{print $1}')" >> $GITHUB_ENV
+
+      - name: Update Formula in Homebrew Repo
+        uses: test-room-7/action-update-file@v1
+        with:
+          file-path: Formula/ateno-js.rb 
+          repository: AtenoTech/ateno-homebrew
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          branch: main
+          replacement-patterns: |
+            url ".*" => url "https://github.com/AtenoTech/ateno-js/archive/refs/tags/${{ github.ref_name }}.tar.gz"
+            sha256 ".*" => sha256 "${{ env.HASH }}"
