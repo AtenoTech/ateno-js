@@ -9,7 +9,7 @@ jobs:
   update-brew:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout Source
         uses: actions/checkout@v4
 
       - name: Calculate SHA256
@@ -18,13 +18,20 @@ jobs:
           curl -L -o code.tar.gz https://github.com/AtenoTech/ateno-js/archive/refs/tags/${{ github.ref_name }}.tar.gz
           echo "HASH=$(shasum -a 256 code.tar.gz | awk '{print $1}')" >> $GITHUB_ENV
 
-      - name: Update Formula in Homebrew Repo
-        uses: test-room-7/action-update-file@v1
-        with:
-          file-path: Formula/ateno-js.rb 
-          repository: AtenoTech/ateno-homebrew
-          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
-          branch: main
-          replacement-patterns: |
-            url ".*" => url "https://github.com/AtenoTech/ateno-js/archive/refs/tags/${{ github.ref_name }}.tar.gz"
-            sha256 ".*" => sha256 "${{ env.HASH }}"
+      - name: Update Homebrew Repo
+        run: |
+          # 1. Clone your Homebrew repo specifically
+          git clone https://x-access-token:${{ secrets.HOMEBREW_TAP_TOKEN }}@github.com/AtenoTech/ateno-homebrew.git hb-repo
+          cd hb-repo/Formula
+          
+          # 2. Use 'sed' to update the URL and SHA256 in the file
+          # This is the most reliable way (Mathematics approach: precise substitution)
+          sed -i "s|url \".*\"|url \"https://github.com/AtenoTech/ateno-js/archive/refs/tags/${{ github.ref_name }}.tar.gz\"|g" ateno-js.rb
+          sed -i "s|sha256 \".*\"|sha256 \"${{ env.HASH }}\"|g" ateno-js.rb
+          
+          # 3. Commit and Push back to the Homebrew repo
+          git config user.name "Ateno Robot"
+          git config user.email "robot@ateno.co"
+          git add ateno-js.rb
+          git commit -m "Update ateno-js to ${{ github.ref_name }}"
+          git push
