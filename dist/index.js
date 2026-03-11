@@ -1,16 +1,15 @@
-import AtenoClient from "./client.js"
-import Users from "./users.js"
+import { AtenoClient } from './client.js';
+import { RoomsService } from './rooms.js';
 
-class Ateno {
-  constructor(apiKey, options = {}) {
-    this.client = new AtenoClient(apiKey, options)
-    this.users = new Users(this.client)
+export class Ateno {
+  constructor(config) {
+    this._client = new AtenoClient(config);
+    this.rooms = new RoomsService(this._client);
+  }
+
+  get usageCount() {
+    return this._client.getTotalRequests();
   }
 }
 
-Ateno.Ateno = Ateno
-Ateno.AtenoClient = AtenoClient
-Ateno.Users = Users
-
-export { Ateno, AtenoClient, Users }
-export default Ateno
+export default Ateno;
